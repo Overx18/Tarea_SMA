@@ -30,11 +30,11 @@ public class AgentePago extends Agent {
             public void action() {
                 ACLMessage msg = receive();
                 if (msg != null && msg.getPerformative() == ACLMessage.REQUEST) {
-                    System.out.println("AgentePago " + getLocalName() + " validando: " + msg.getContent());
+                    System.out.println("AgentePago " + getLocalName() + " validando el yapeo");
 
                     ACLMessage resp = new ACLMessage(ACLMessage.CONFIRM);
                     resp.addReceiver(msg.getSender());
-                    resp.setContent("Pago validado correctamente");
+                    resp.setContent("Pago validado por " + getLocalName());
                     send(resp);
                 } else {
                     block();
@@ -43,5 +43,6 @@ public class AgentePago extends Agent {
         });
     }
 }
+
 
 

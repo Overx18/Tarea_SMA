@@ -31,13 +31,14 @@ public class AgenteRepartidor extends Agent {
             public void action() {
                 ACLMessage msg = receive();
                 if (msg != null && msg.getPerformative() == ACLMessage.REQUEST) {
-                    String cliente = msg.getContent().replace("Arribado en domicilio de ", "");
-                    System.out.println("Repartidor " + getLocalName() + " entregando pedido a " + cliente);
+                    String content = msg.getContent(); // Ejemplo: "Entregar chifa a Diego"
+                    System.out.println("Repartidor " + getLocalName() + " recibe orden de Central: " + content);
 
-                    // Confirmar al cliente que recibió el pedido
+                    String cliente = content.substring(content.lastIndexOf(" ") + 1);
+
                     ACLMessage confirmacion = new ACLMessage(ACLMessage.INFORM);
                     confirmacion.addReceiver(new AID(cliente, AID.ISLOCALNAME));
-                    confirmacion.setContent("Pedido entregado");
+                    confirmacion.setContent("Pedido entregado por " + getLocalName());
                     send(confirmacion);
                 } else {
                     block();
@@ -46,5 +47,6 @@ public class AgenteRepartidor extends Agent {
         });
     }
 }
+
 
 

@@ -1,11 +1,11 @@
 import jade.core.Agent;
-import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import jade.core.AID;
 
 public class AgenteRestaurante extends Agent {
 
@@ -17,7 +17,7 @@ public class AgenteRestaurante extends Agent {
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
         sd.setType("restaurante");
-        sd.setName("ServicioComida");
+        sd.setName("DeliveryComida");
         dfd.addServices(sd);
 
         try {
@@ -31,25 +31,43 @@ public class AgenteRestaurante extends Agent {
             public void action() {
                 ACLMessage msg = receive();
                 if (msg != null && msg.getPerformative() == ACLMessage.REQUEST) {
-                    System.out.println("Restaurante " + getLocalName() + " recibió un pedido de " + msg.getSender().getLocalName());
+                    String contenido = msg.getContent(); // Ej: "pedido:chifa" o "reserva:pollo"
+                    String[] parts = contenido.split(":");
 
-                    AID agentePago = buscarAgente("pago");
-                    AID repartidor = buscarAgente("repartidor");
+                    if (parts.length == 2) {
+                        String tipo = parts[0];
+                        String producto = parts[1];
+                        String cliente = msg.getSender().getLocalName();
 
-                    if (agentePago != null && repartidor != null) {
-                        ACLMessage pagoReq = new ACLMessage(ACLMessage.REQUEST);
-                        pagoReq.addReceiver(agentePago);
-                        pagoReq.setContent("Yapeo recibido de " + msg.getSender().getLocalName());
-                        send(pagoReq);
+                        System.out.println("Restaurante " + getLocalName() + " recibió un " + tipo + " de " + producto + " de " + cliente);
 
-                        ACLMessage pagoResp = blockingReceive();
-                        if (pagoResp != null && pagoResp.getPerformative() == ACLMessage.CONFIRM) {
-                            System.out.println("Restaurante " + getLocalName() + " recibió confirmación de pago de " + agentePago.getLocalName());
+                        AID agentePago = buscarAgente("pago");
 
-                            ACLMessage orden = new ACLMessage(ACLMessage.REQUEST);
-                            orden.addReceiver(repartidor);
-                            orden.setContent("Arribado en domicilio de " + msg.getSender().getLocalName());
-                            send(orden);
+                        if (agentePago != null) {
+                            ACLMessage pagoReq = new ACLMessage(ACLMessage.REQUEST);
+                            pagoReq.addReceiver(agentePago);
+                            pagoReq.setContent(tipo + ":" + producto + ":" + cliente);
+                            send(pagoReq);
+
+                            ACLMessage pagoResp = blockingReceive();
+                            if (pagoResp != null && pagoResp.getPerformative() == ACLMessage.CONFIRM) {
+                                System.out.println("Restaurante " + getLocalName() + " recibió confirmación de pago de " + pagoResp.getSender().getLocalName());
+
+                                if (tipo.equalsIgnoreCase("pedido")) {
+                                    AID repartidor = buscarAgente("repartidor");
+                                    if (repartidor != null) {
+                                        ACLMessage orden = new ACLMessage(ACLMessage.REQUEST);
+                                        orden.addReceiver(repartidor);
+                                        orden.setContent("Entregar " + producto + " a " + cliente);
+                                        send(orden);
+                                    }
+                                } else if (tipo.equalsIgnoreCase("reserva")) {
+                                    ACLMessage confirm = new ACLMessage(ACLMessage.INFORM);
+                                    confirm.addReceiver(msg.getSender());
+                                    confirm.setContent("Reserva confirmada para " + producto + " en " + getLocalName());
+                                    send(confirm);
+                                }
+                            }
                         }
                     }
                 } else {
@@ -76,6 +94,9 @@ public class AgenteRestaurante extends Agent {
         return null;
     }
 }
+
+
+
 
 
 
