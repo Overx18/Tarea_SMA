@@ -1,10 +1,9 @@
 /*
  * 
- * javac -d out "-cp" "..\\jade.jar" *.java
- * java -cp "..\\jade.jar;out" jade.Boot -gui "Diego:AgenteCliente;Central:AgenteRestaurante;Yonaiker:AgenteRepartidor;Yape:AgentePago"
+ * javac -d out "-cp" "jade.jar" *.java
  *
- *  java -cp "..\\jade.jar;out" jade.Boot -gui "Diego:AgenteCliente(reserva:pollo);Central:AgenteRestaurante;Yape:AgentePago;Yonaiker:AgenteRepartidor"
- * java -cp "..\\jade.jar;out" jade.Boot -gui "Diego:AgenteCliente(pedido:chifa);Central:AgenteRestaurante;Yape:AgentePago;Yonaiker:AgenteRepartidor"
+ * java -cp "jade.jar;out" jade.Boot -gui "Diego:AgenteCliente(reserva:pollo);Central:AgenteRestaurante;Yape:AgentePago;Yonaiker:AgenteRepartidor"
+ * java -cp "jade.jar;out" jade.Boot -gui "Diego:AgenteCliente(pedido:chifa);Central:AgenteRestaurante;Yape:AgentePago;Yonaiker:AgenteRepartidor"
  */
 
 import jade.core.Agent;
